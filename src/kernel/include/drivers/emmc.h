@@ -2,13 +2,13 @@
 
 #include "stdint.h"
 
-typedef struct {
-    uint8_t mid;        // Manufacturer ID
-    uint16_t oid;       // OEM/Application ID
-    char pnm[6];        // Product name (5 chars + null terminator)
-    uint8_t prv;        // Product revision
-    uint32_t psn;       // Product serial number
-    uint16_t mdt;       // Manufacturing date
+typedef struct __attribute__((packed)) {
+    uint8_t mid;
+    uint16_t oid;
+    char pnm[6];
+    uint8_t prv;
+    uint32_t psn;
+    uint16_t mdt;
 } sd_cid_t;
 
 
@@ -17,14 +17,23 @@ typedef struct {
 
 // We're using EMMC2
 #define EMMC_BASE ( PERIPHERAL_BASE + VA_START + 0x340000)
-#define EMMC_CONTROL1   (EMMC_BASE + 0x2C)
-#define EMMC_INTERRUPT  (EMMC_BASE + 0x30)
-#define EMMC_STATUS     (EMMC_BASE + 0x24)
-#define EMMC_ARG1		(EMMC_BASE + 0x08)
-#define EMMC_CMDTM		(EMMC_BASE + 0x0C)
-#define EMMC_RESP0		(EMMC_BASE + 0x10)
-#define EMMC_IRPT_MASK  (EMMC_BASE + 0x34)
-#define EMMC_IRPT_EN    (EMMC_BASE + 0x38)
+#define EMMC_CONTROL0       (EMMC_BASE + 0x28)
+#define EMMC_CONTROL1       (EMMC_BASE + 0x2C)
+#define EMMC_CONTROL2       (EMMC_BASE + 0x3C)
+#define EMMC_INTERRUPT      (EMMC_BASE + 0x30)
+#define EMMC_STATUS         (EMMC_BASE + 0x24)
+#define EMMC_ARG1		    (EMMC_BASE + 0x08)
+#define EMMC_CMDTM		    (EMMC_BASE + 0x0C)
+#define EMMC_RESP0		    (EMMC_BASE + 0x10)
+#define EMMC_RESP1		    (EMMC_BASE + 0x14)
+#define EMMC_RESP2	    	(EMMC_BASE + 0x18)
+#define EMMC_RESP3		    (EMMC_BASE + 0x1C)
+#define EMMC_IRPT_MASK      (EMMC_BASE + 0x34)
+#define EMMC_IRPT_EN        (EMMC_BASE + 0x38)
+#define EMMC_SLOTISR_VER    (EMMC_BASE + 0xFC)
+#define EMMC_BLKSIZECNT		(EMMC_BASE + 0x04)
+#define EMMC_DATA		    (EMMC_BASE + 0x20)
+
 
 
 int emmc_init();
