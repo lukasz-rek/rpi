@@ -1,8 +1,8 @@
 #include "mm.h"
 
-#define PERIPHERAL_BASE (0xFE000000 + VA_START)
+#define PERIPHERAL_BASE_VA (PERIPHERAL_BASE + VA_START)
 enum {
-    AUX_BASE        = PERIPHERAL_BASE + 0x215000,
+    AUX_BASE        = PERIPHERAL_BASE_VA + 0x215000,
     AUX_IRQ         = AUX_BASE,
     AUX_ENABLES     = AUX_BASE + 4,
     AUX_MU_IO_REG   = AUX_BASE + 64,
@@ -24,6 +24,10 @@ enum {
 void uart_debug_fifo_status();
 void uart_init();
 void uart_writeText(char *buffer);
+
+unsigned int gpio_pull(unsigned int pin_number, unsigned int value);
+unsigned int gpio_function(unsigned int pin_number, unsigned int value);
+
 // pointer unused but added so it works with printf lib
 void uart_writeChar(void* p, char character);
 void uart_readChar();

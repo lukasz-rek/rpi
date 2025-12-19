@@ -1,5 +1,6 @@
 #include "drivers/io.h"
 #include "drivers/fb.h"
+#include "drivers/emmc.h"
 #include "printf.h"
 #include "arm/util.h"
 #include "arm/irq.h"
@@ -78,6 +79,11 @@ void kernel_main()
 
     heap_init();
     sched_init();
+
+    int emmc = emmc_init();
+    if (emmc != 0) {
+        printf("EMMC init failed with %d\n", emmc);
+    }
 
     // Set up timer interrupt
     enable_irq();

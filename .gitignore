@@ -1,5 +1,6 @@
 arm-gnu-toolchain
 kernel8.img
+sdcard.img
 user.elf
 build
 .vscode/
