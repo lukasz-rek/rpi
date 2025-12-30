@@ -1,5 +1,5 @@
+#pragma once
 #include "mm.h"
-
 #include "stdint.h"
 
 typedef struct __attribute__((packed)) {
@@ -37,13 +37,12 @@ typedef struct __attribute__((packed)) {
 
 
 int emmc_init();
+int emmc_read_block(uint32_t block, uint8_t* buffer);
+int emmc_write_block(uint32_t block, uint8_t* buffer);
+
 int emmc_power_on();
 int emmc_reset();
-int emmc_set_clock(uint32_t clock_hz);
-int emmc_print_card_info();
 int emmc_send_command(uint32_t cmd, uint32_t arg);
-
 uint32_t emmc_get_base_clock();
-
 void print_cid(sd_cid_t* cid);
 int emmc_send_cmd2(sd_cid_t *cid);

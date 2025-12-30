@@ -8,6 +8,7 @@
 #include "arm/sys.h"
 #include "user.h"
 #include "heap.h"
+#include "fs/fat32.h"
 
 
 
@@ -84,6 +85,9 @@ void kernel_main()
     if (emmc != 0) {
         printf("EMMC init failed with %d\n", emmc);
     }
+
+    get_fat32_sector();
+    get_root_directory();
 
     // Set up timer interrupt
     enable_irq();

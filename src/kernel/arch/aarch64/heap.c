@@ -17,7 +17,7 @@ void heap_init() {
     printf("Heap start allocated at: 0x%x\n", heap_start);
     for (int i = 1; i < 256; i++) {
         // Nothing else requests pages so are next to each other
-        heap_end = allocate_kernel_page(); 
+        heap_end = allocate_kernel_page();
     }
     printf("Heap end allocated at: 0x%x\n", heap_end);
 
@@ -57,12 +57,12 @@ void *kmalloc(unsigned long size) {
     // We should either get nothing or block
     if (free_block_ptr == 0)
         return 0; // We have nothing
-    
+
     heap_block_t* next_block = (heap_block_t*)((char*) free_block_ptr + sizeof(heap_block_t) + size);
     if(free_block_ptr->next_block == (HEAP_DATA_LOC(free_block_ptr) + size)) {
         // If the space is just enough for this allocation we don't need to create anything new
         free_block_ptr->is_used = 1;
-        
+
     } else {
         // We need to create a new block and split up the free space
         free_block_ptr->is_used = 1;
