@@ -7,6 +7,7 @@
 #define EXT4_FS     0x83
 
 
+
 typedef struct mbr_entry {
     uint8_t bootable;
     uint8_t chs[3];
@@ -55,10 +56,10 @@ int get_root_directory();
 
 long get_next_cluster(unsigned long cluster_number);
 // Needs absolute path
-long get_cluster_by_path(char* name, int16_t path_len);
+long get_cluster_by_path(char* name, uint16_t path_len);
 
 // Bro I would so love string support right now :'''(, who even made this OS?
 // Returns how many entries were found, -1 on failure 
-int16_t parse_cluster(unsigned long cluster_number, virt_node_t retrieved_paths[64], int *idx);
+int16_t parse_cluster(unsigned long cluster_number, virt_node_t retrieved_paths[MAX_FILENAME_LEN], int *idx);
 
 void print_partition_info(mbr_entry_t* entry);

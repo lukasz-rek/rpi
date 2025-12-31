@@ -1,5 +1,6 @@
 #include "fs/fat32.h"
 #include "printf.h"
+#include "arm/util.h"
 // #include "string.h"
 
 
@@ -39,16 +40,59 @@ int get_root_directory() {
         //         printf("%d, Folder: %s , size: %d\n", i + 1, found_files[i].name, found_files[i].size);
         //     else
         //         printf("%d, File: %s , size: %d\n", i + 1, found_files[i].name, found_files[i].size);
-
         // }
+
+
+        printf("Root cluster by path: %d\n", get_cluster_by_path("/", 1));
+        printf("/config.txt by path: %d\n", get_cluster_by_path("/config.txt", 11));
+
+        long secto = get_cluster_by_path("/elem/elo.txt", 13);
+        printf("/elem/elo.txt by path: %d\n", secto);      
+        
+        char read_data[512];
+        emmc_read_block(SECTOR_FROM_CLUSTER(secto, bpb.sectors_per_cluster), (uint8_t*) read_data);
+        printf("Attempting read: %s\n", read_data);
+
         return 0;
     }
     return -1;
 }
 
-// long get_cluster_by_path(char* name, int16_t path_len) {
-//     // 
-// }
+long get_cluster_by_path(char* name, uint16_t path_len) {
+    // Base cases
+    if (name[path_len] == '\0')
+        path_len--;
+    if (name[path_len] == '/' && path_len > 1 )
+        path_len--;
+    if (name[path_len] == '/') {
+        printf("Got root\n");
+        return bpb.root_cluster_number;
+    }
+
+    // Now try to parse path
+    char cur_name[MAX_FILENAME_LEN] = {'\0'};
+    int name_start = path_len;
+    while(name[name_start] != '/') {
+        name_start--;
+    }
+    memcpy((unsigned long) cur_name,(unsigned long) &name[name_start + 1], path_len - name_start);
+    // Now retrieve the files of parent and check if we can match stuff
+    virt_node_t found_files[64];
+    int files_num = 0;
+    long parent_cluster = get_cluster_by_path(name, name_start);
+
+    parse_cluster(parent_cluster, found_files, &files_num);
+    for(int i = 0; i < files_num; i++) {
+        // printf("Comparing with %s\n", found_files[i].name);
+        if (!str_compare(found_files[i].name, cur_name, path_len - name_start)) {
+            // printf("Found match at %d\n" found_files)
+            return found_files[i].cluster_number;
+        }
+    }
+    // We haven't found a match
+    return -1; 
+
+}
 
 
 long get_next_cluster(unsigned long cluster_number) {
@@ -71,9 +115,9 @@ long get_next_cluster(unsigned long cluster_number) {
 
 
 int16_t parse_cluster(unsigned long cluster_number, virt_node_t retrieved_paths[64], int* idx) {
-    printf("Parsing cluster no: %d\n", cluster_number);
+    // printf("Parsing cluster no: %d\n", cluster_number);
     uint64_t sector_num = SECTOR_FROM_CLUSTER(cluster_number, bpb.sectors_per_cluster);
-    printf("Sectors %d - %d\n", sector_num, sector_num + 3);
+    // printf("Sectors %d - %d\n", sector_num, sector_num + 3);
     
     uint32_t table_value = get_next_cluster(cluster_number);
     
@@ -84,9 +128,9 @@ int16_t parse_cluster(unsigned long cluster_number, virt_node_t retrieved_paths[
     }
 
     uint8_t data[512];
-    char filename_buffer[64];
-    filename_buffer[63] = '\0';
-    int filename_idx = 62;
+    char filename_buffer[MAX_FILENAME_LEN];
+    filename_buffer[MAX_FILENAME_LEN - 1] = '\0';
+    int filename_idx = MAX_FILENAME_LEN - 2;
     emmc_read_block(sector_num++, data);
     for(int count = 0; count < 4; count++) {
 
@@ -94,6 +138,7 @@ int16_t parse_cluster(unsigned long cluster_number, virt_node_t retrieved_paths[
             uint8_t* entry = &data[i];
             if(entry[0] == 0x00) {
                 printf("No more entries\n");
+                count = 5; // So we go to the end immediately
                 break;
             } else if(entry[0] == 0xE5) {
                 printf("Entry unused, advance\n");
@@ -130,20 +175,20 @@ int16_t parse_cluster(unsigned long cluster_number, virt_node_t retrieved_paths[
                 retrieved_paths[(*idx)].size = dir->size_bytes;
                 retrieved_paths[(*idx)].is_folder = 0x10 & dir->attr;
 
-                memcpy((unsigned long) &retrieved_paths[(*idx)++].name,(unsigned long) &filename_buffer[filename_idx + 1], 63 - filename_idx);
-                filename_idx = 62;
-                memzero((unsigned long) filename_buffer, 64);
-                filename_buffer[63] = '\0';
+                memcpy((unsigned long) &retrieved_paths[(*idx)++].name,(unsigned long) &filename_buffer[filename_idx + 1], MAX_FILENAME_LEN - 1 - filename_idx);
+                filename_idx = MAX_FILENAME_LEN - 2;
+                memzero((unsigned long) filename_buffer, MAX_FILENAME_LEN);
+                filename_buffer[MAX_FILENAME_LEN - 1] = '\0';
                 // printf("%s\n", dir->name);
             }
         }
         emmc_read_block(sector_num++, data);
     }
     if ( table_value >= 0x0FFFFFF8) {
-        printf("Read last cluster\n");
+        // printf("Read last cluster\n");
         return 0;
     } else {
-        printf("Reading next cluster in chain\n");
+        // printf("Reading next cluster in chain\n");
         return parse_cluster(table_value, retrieved_paths, idx);
     }
 }

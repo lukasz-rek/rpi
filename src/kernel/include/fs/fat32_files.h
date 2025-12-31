@@ -1,4 +1,7 @@
 #include "stdint.h"
+#define MAX_FILENAME_LEN 64
+
+
 
 typedef struct directory {
     char        name[11];
@@ -28,7 +31,7 @@ typedef struct long_name {
 
 // Can be either folder or file
 typedef struct virt_node {
-    char        name[64];
+    char        name[MAX_FILENAME_LEN];
     uint32_t    cluster_number;
     uint8_t     is_folder;
     uint64_t    size;
