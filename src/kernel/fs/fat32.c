@@ -31,42 +31,33 @@ int get_root_directory() {
         // root_cluster = SECTOR_FROM_CLUSTER(bpb.root_cluster_number, bpb.sectors_per_cluster);
         printf("Sector of root cluster: %d\n", SECTOR_FROM_CLUSTER(bpb.root_cluster_number, bpb.sectors_per_cluster));    
 
-        // virt_node_t found_files[64];
-        // int files_num = 0;
-        // parse_cluster(bpb.root_cluster_number, found_files, &files_num);
-        // printf("Found %d files\n", files_num);
-        // for(int i = 0; i < files_num; i++) {
-        //     if (found_files[i].is_folder)
-        //         printf("%d, Folder: %s , size: %d\n", i + 1, found_files[i].name, found_files[i].size);
-        //     else
-        //         printf("%d, File: %s , size: %d\n", i + 1, found_files[i].name, found_files[i].size);
-        // }
+        printf("Root cluster by path: %d\n", get_cluster_by_path("/", 1).cluster_number);
+        printf("/config.txt by path: %d\n", get_cluster_by_path("/config.txt", 11).cluster_number);
 
-
-        printf("Root cluster by path: %d\n", get_cluster_by_path("/", 1));
-        printf("/config.txt by path: %d\n", get_cluster_by_path("/config.txt", 11));
-
-        long secto = get_cluster_by_path("/elem/elo.txt", 13);
+        long secto = get_cluster_by_path("/elem/elo.txt", 13).cluster_number;
         printf("/elem/elo.txt by path: %d\n", secto);      
         
-        char read_data[512];
-        emmc_read_block(SECTOR_FROM_CLUSTER(secto, bpb.sectors_per_cluster), (uint8_t*) read_data);
-        printf("Attempting read: %s\n", read_data);
+        // char read_data[512];
+        // emmc_read_block(SECTOR_FROM_CLUSTER(secto, bpb.sectors_per_cluster), (uint8_t*) read_data);
+        // printf("Attempting read: %s\n", read_data);
 
         return 0;
     }
     return -1;
 }
 
-long get_cluster_by_path(char* name, uint16_t path_len) {
+virt_node_t get_cluster_by_path(char* name, uint16_t path_len) {
     // Base cases
+    virt_node_t result;
+
     if (name[path_len] == '\0')
         path_len--;
     if (name[path_len] == '/' && path_len > 1 )
         path_len--;
     if (name[path_len] == '/') {
         printf("Got root\n");
-        return bpb.root_cluster_number;
+        result.cluster_number = bpb.root_cluster_number;
+        return result;
     }
 
     // Now try to parse path
@@ -79,18 +70,19 @@ long get_cluster_by_path(char* name, uint16_t path_len) {
     // Now retrieve the files of parent and check if we can match stuff
     virt_node_t found_files[64];
     int files_num = 0;
-    long parent_cluster = get_cluster_by_path(name, name_start);
+    long parent_cluster = get_cluster_by_path(name, name_start).cluster_number;
 
     parse_cluster(parent_cluster, found_files, &files_num);
     for(int i = 0; i < files_num; i++) {
         // printf("Comparing with %s\n", found_files[i].name);
         if (!str_compare(found_files[i].name, cur_name, path_len - name_start)) {
             // printf("Found match at %d\n" found_files)
-            return found_files[i].cluster_number;
+            return found_files[i];
         }
     }
     // We haven't found a match
-    return -1; 
+    result.cluster_number = 0; // Nothing can have 0 as cluster num
+    return result; 
 
 }
 

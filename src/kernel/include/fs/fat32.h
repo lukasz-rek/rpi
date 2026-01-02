@@ -56,7 +56,7 @@ int get_root_directory();
 
 long get_next_cluster(unsigned long cluster_number);
 // Needs absolute path
-long get_cluster_by_path(char* name, uint16_t path_len);
+virt_node_t get_cluster_by_path(char* name, uint16_t path_len);
 
 // Bro I would so love string support right now :'''(, who even made this OS?
 // Returns how many entries were found, -1 on failure 
