@@ -83,8 +83,25 @@ virt_node_t get_cluster_by_path(char* name, uint16_t path_len) {
     // We haven't found a match
     result.cluster_number = 0; // Nothing can have 0 as cluster num
     return result; 
-
 }
+
+int16_t read_from_fat32_file(virt_node_t file, uint8_t* buffer, uint32_t offset) {
+    // Remember we have 4 sectors per cluster, each sector 512 bytes
+    int cluster_offset = offset / 4;
+    int sector_offset = offset % 4;
+    int cluster_number = file.cluster_number; 
+    while(cluster_offset > 0) {
+        cluster_number = get_next_cluster(cluster_number);
+        if (cluster_number < 0) {
+            printf("No more file\n");
+            return -1;
+        }
+    }
+    long sector_number = SECTOR_FROM_CLUSTER(cluster_number, bpb.sectors_per_cluster);
+    sector_number += sector_offset;
+    return emmc_read_block(sector_number, buffer); 
+}
+
 
 
 long get_next_cluster(unsigned long cluster_number) {

@@ -58,6 +58,13 @@ long get_next_cluster(unsigned long cluster_number);
 // Needs absolute path
 virt_node_t get_cluster_by_path(char* name, uint16_t path_len);
 
+/**
+ * @brief Reads from specified file
+ * @param buffer always of size 512
+ * @return 0 on success, otherwise failure
+ */
+int16_t read_from_fat32_file(virt_node_t file, uint8_t* buffer, uint32_t offset);
+
 // Bro I would so love string support right now :'''(, who even made this OS?
 // Returns how many entries were found, -1 on failure 
 int16_t parse_cluster(unsigned long cluster_number, virt_node_t retrieved_paths[MAX_FILENAME_LEN], int *idx);

@@ -1,3 +1,4 @@
+#pragma once
 #include "stdint.h"
 #define MAX_FILENAME_LEN 64
 

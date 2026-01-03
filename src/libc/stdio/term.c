@@ -62,3 +62,27 @@ void clear_screen() {
         }
     }
 }
+
+uint32_t user_str_compare(char * buffer1, char * buffer2, uint32_t size) {
+        for(int i = 0; i < size; i++) {
+                // if (buffer1[i] == '\0' && buffer2[i] == '\0') 
+                //         return 0;
+                if(buffer1[i] != buffer2[i]) {
+                        // printf("Mismatch on %d with chars %c and %c\n", i, buffer1[i], buffer2[i]);
+                        return 1;
+                }
+        }
+        return 0;
+}
+
+uint32_t append(char* dst, char* src) {
+    int i = 0;
+    int src_i = 0;
+    while(dst[i] != '\0'){
+        i++;
+    }
+    while(src[src_i] != '\0') {
+        dst[i++] = src[src_i++];
+    }
+    return 0;
+}

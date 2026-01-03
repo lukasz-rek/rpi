@@ -5,7 +5,7 @@
 #include "drivers/io.h"
 #include "drivers/fb.h"
 #include <stdint.h>
-
+#include "fs/fat32.h"
 
 
 void sys_write(char * fmt, ...){
@@ -57,6 +57,20 @@ void sys_clear_screen() {
 	drawRect(0, 0, 1920, 1080, 0, 1);
 }
 
+virt_node_t get_file_handle_by_path(char* path, int path_len) {
+	return get_cluster_by_path(path, path_len);
+}
+
+int list_files(virt_node_t parent_dir, virt_node_t retrieved_paths[64], int* idx) {
+	return parse_cluster(parent_dir.cluster_number, retrieved_paths, idx);
+}
+
+int read_from_file(virt_node_t file, uint8_t* buffer, uint32_t offset) {
+	// TODO: both here and in list_files I could add some checks if file is file and dir a dir
+	// buuuut nah
+	return read_from_fat32_file(file, buffer, offset);
+}
 
 void * const sys_call_table[] = {	sys_write, sys_fork, sys_exit, sys_delay_ticks, 
-									sys_set_prio, sys_uart_read_char, sys_register_for_isr, sys_write_screen_buffer, sys_clear_screen};
+									sys_set_prio, sys_uart_read_char, sys_register_for_isr, sys_write_screen_buffer, sys_clear_screen,
+									get_file_handle_by_path, list_files, read_from_file};

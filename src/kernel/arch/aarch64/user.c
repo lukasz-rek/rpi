@@ -1,7 +1,9 @@
 #include "user_sys.h"
 #include "printf.h"
 #include "term.h"
+#include "fs/fat32_files.h"
 
+#define CMD_LEN 72
 
 
 
@@ -17,7 +19,7 @@ void loop()
 
 void get_command(char* command) {
 	int cmd_cursor = 0;
-	char read[12];
+	char read[CMD_LEN];
 
 	while(1) {
 		// Get some chars and process them
@@ -44,19 +46,59 @@ void get_command(char* command) {
 
 
 void terminal() {
+	char current_path[64] = "/";
 	
 	while(1) {
-		char command[64] = "";
+		char command[CMD_LEN] = "";
 
-		term_printf("TERM>");
+		term_printf("%s>", current_path);
 		
 		get_command(command);
 
-		call_sys_write("Processing %s\n", command);
 
 		// process command
+		// For now we only support up to 2 args, 0th arg is cmd
+		char args[3][CMD_LEN/3];
+		int input_idx = 0;
+		int copy_idx = 0;
+		int arg_id = 0;
+		uint8_t parenthesis = 0;
+		while(input_idx < CMD_LEN && arg_id < 3) {
+			if (command[input_idx] == '"' && parenthesis) {
+				input_idx++;
+				parenthesis = 0;
+			} else if (command[input_idx] == '"' && !parenthesis) {
+				parenthesis = 1;
+				input_idx++;
+			} else if(command[input_idx] == ' ' && !parenthesis) {
+				args[arg_id][copy_idx] = '\0';
+				arg_id++;
+				input_idx++;
+				copy_idx = 0;
+			} else {
+				args[arg_id][copy_idx++] = command[input_idx++]; 
+			}
+		}
 
 		term_printf("\r");
+
+		// Stupid matching but oh well
+		if (!user_str_compare(args[0], "echo", 4)) {
+			term_printf("%s", args[1]);
+		} else if (!user_str_compare(args[0], "ls", 2)) {
+
+		} else if (!user_str_compare(args[0], "cd", 2)) {
+			// Check if parent directory
+
+		} else if (!user_str_compare(args[0], "cat", 3)) {
+
+		} else {
+			term_printf("Failed to parse command!");
+			call_sys_write("Failed to recognize command!\n");
+		}
+
+		term_printf("\r");
+
 	}
 }
 

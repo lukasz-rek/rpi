@@ -27,3 +27,6 @@ SYSCALL_WRAPPER uart_read_char, 5
 SYSCALL_WRAPPER register_for_isr, 6
 SYSCALL_WRAPPER write_screen_buffer, 7
 SYSCALL_WRAPPER clear_screen, 8
+SYSCALL_WRAPPER get_file_handle_by_path, 9
+SYSCALL_WRAPPER list_files, 10
+SYSCALL_WRAPPER read_from_file, 11
