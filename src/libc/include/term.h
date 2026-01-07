@@ -1,6 +1,6 @@
 #include <stdarg.h>
 #include <stdint.h>
-
+#include <stddef.h>
 
 #define CHAR_X_LEN (1920/8)
 #define CHAR_Y_LEN (1080/8)

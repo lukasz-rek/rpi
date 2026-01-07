@@ -112,6 +112,7 @@ void set_task_prio(int prio);
 void delay_ticks(long ticks);
 void handle_isr_wake_up(int isr_num);
 void register_for_isr(int isr_num);
+unsigned long get_ticks_since_start();
 
 #define INIT_TASK { \
     /* cpu_context */ { 0,0,0,0,0,0,0,0,0,0,0,0,0 }, \

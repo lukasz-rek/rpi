@@ -24,7 +24,7 @@ void refresh_screen() {
 }
 
 void write_char_to_buffer(void *p, char character) {
-    if (character == '\r') {
+    if (character == '\r' || character == '\n') {
         cursor = ((cursor / CHAR_X_LEN) + 1) * CHAR_X_LEN;
         return;
     }
@@ -65,8 +65,8 @@ void clear_screen() {
 
 uint32_t user_str_compare(char * buffer1, char * buffer2, uint32_t size) {
         for(int i = 0; i < size; i++) {
-                // if (buffer1[i] == '\0' && buffer2[i] == '\0') 
-                //         return 0;
+                if (buffer1[i] == '\0' && buffer2[i] != '\0') 
+                        return 1;
                 if(buffer1[i] != buffer2[i]) {
                         // printf("Mismatch on %d with chars %c and %c\n", i, buffer1[i], buffer2[i]);
                         return 1;
@@ -74,6 +74,7 @@ uint32_t user_str_compare(char * buffer1, char * buffer2, uint32_t size) {
         }
         return 0;
 }
+
 
 uint32_t append(char* dst, char* src) {
     int i = 0;

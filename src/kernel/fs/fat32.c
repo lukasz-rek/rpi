@@ -34,12 +34,13 @@ int get_root_directory() {
         printf("Root cluster by path: %d\n", get_cluster_by_path("/", 1).cluster_number);
         printf("/config.txt by path: %d\n", get_cluster_by_path("/config.txt", 11).cluster_number);
 
-        long secto = get_cluster_by_path("/elem/elo.txt", 13).cluster_number;
-        printf("/elem/elo.txt by path: %d\n", secto);      
+        virt_node_t secto = get_cluster_by_path("/elem/sth/hello.txt", 19);
+        printf("/elem/sth/hello.txt by path: %d\n", secto.cluster_number);      
         
-        // char read_data[512];
+        char read_data[512];
+        read_from_fat32_file(&secto, read_data, 0);
         // emmc_read_block(SECTOR_FROM_CLUSTER(secto, bpb.sectors_per_cluster), (uint8_t*) read_data);
-        // printf("Attempting read: %s\n", read_data);
+        printf("Attempting read: %s\n", read_data);
 
         return 0;
     }
@@ -50,12 +51,13 @@ virt_node_t get_cluster_by_path(char* name, uint16_t path_len) {
     // Base cases
     virt_node_t result;
 
-    if (name[path_len] == '\0')
-        path_len--;
+    while (name[path_len] == '\0') {
+        path_len--; // Can go bad i know, but boss I'm tired
+    }
     if (name[path_len] == '/' && path_len > 1 )
         path_len--;
     if (name[path_len] == '/') {
-        printf("Got root\n");
+        // printf("Got root\n");
         result.cluster_number = bpb.root_cluster_number;
         return result;
     }
@@ -85,17 +87,18 @@ virt_node_t get_cluster_by_path(char* name, uint16_t path_len) {
     return result; 
 }
 
-int16_t read_from_fat32_file(virt_node_t file, uint8_t* buffer, uint32_t offset) {
+int16_t read_from_fat32_file(virt_node_t *file, uint8_t* buffer, uint32_t offset) {
     // Remember we have 4 sectors per cluster, each sector 512 bytes
     int cluster_offset = offset / 4;
     int sector_offset = offset % 4;
-    int cluster_number = file.cluster_number; 
+    int cluster_number = file->cluster_number; 
     while(cluster_offset > 0) {
         cluster_number = get_next_cluster(cluster_number);
         if (cluster_number < 0) {
             printf("No more file\n");
             return -1;
         }
+        cluster_offset--;
     }
     long sector_number = SECTOR_FROM_CLUSTER(cluster_number, bpb.sectors_per_cluster);
     sector_number += sector_offset;
@@ -146,11 +149,11 @@ int16_t parse_cluster(unsigned long cluster_number, virt_node_t retrieved_paths[
         for(int i = 0;i < 512; i+= 32) {
             uint8_t* entry = &data[i];
             if(entry[0] == 0x00) {
-                printf("No more entries\n");
+                // printf("No more entries\n");
                 count = 5; // So we go to the end immediately
                 break;
             } else if(entry[0] == 0xE5) {
-                printf("Entry unused, advance\n");
+                // printf("Entry unused, advance\n");
                 continue;
             } else if(entry[11] == 0x0F) {
                 // It is long file name
@@ -184,7 +187,12 @@ int16_t parse_cluster(unsigned long cluster_number, virt_node_t retrieved_paths[
                 retrieved_paths[(*idx)].size = dir->size_bytes;
                 retrieved_paths[(*idx)].is_folder = 0x10 & dir->attr;
 
-                memcpy((unsigned long) &retrieved_paths[(*idx)++].name,(unsigned long) &filename_buffer[filename_idx + 1], MAX_FILENAME_LEN - 1 - filename_idx);
+                int name_len = MAX_FILENAME_LEN - 1 - filename_idx;
+                memcpy((unsigned long) &retrieved_paths[(*idx)].name,
+                    (unsigned long) &filename_buffer[filename_idx + 1], 
+                    name_len);
+                retrieved_paths[(*idx)].name[name_len] = '\0';  // NULL TERMINATE!
+                (*idx)++;
                 filename_idx = MAX_FILENAME_LEN - 2;
                 memzero((unsigned long) filename_buffer, MAX_FILENAME_LEN);
                 filename_buffer[MAX_FILENAME_LEN - 1] = '\0';

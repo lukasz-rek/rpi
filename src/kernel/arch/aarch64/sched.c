@@ -13,9 +13,12 @@ struct task_struct *current = &(init_task);
 struct task_struct **task;
 int nr_tasks = 1;
 static int max_tasks = NR_TASKS;
+static unsigned long ticks = 0;
 struct isr_wait_struct* wait_list[NR_ISR]; 
 
-
+unsigned long get_ticks_since_start() {
+    return ticks;
+}
 
 void add_to_isr_list(int isr_num, long time, struct task_struct* task_ptr) {
     struct isr_wait_struct* new = kmalloc(sizeof(struct isr_wait_struct));
@@ -193,6 +196,7 @@ void schedule_tail(void) {
 
 void timer_tick() {
     // Decrement counter
+    ticks++;
     --current->counter;
     // If it's not time yet or we can't preempt, then ain't a thing we can do
     if (current->counter > 0 || current->preempt_count > 0) {

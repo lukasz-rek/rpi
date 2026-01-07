@@ -30,3 +30,4 @@ SYSCALL_WRAPPER clear_screen, 8
 SYSCALL_WRAPPER get_file_handle_by_path, 9
 SYSCALL_WRAPPER list_files, 10
 SYSCALL_WRAPPER read_from_file, 11
+SYSCALL_WRAPPER get_time_in_ticks, 12
