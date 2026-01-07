@@ -4,7 +4,7 @@ CFLAGS += -Iinclude -I../libc/include -mstrict-align -O0 -g3 -gdwarf-4
 BUILDDIR ?= build
 
 # Source files
-CFILES = $(wildcard *.c) $(wildcard drivers/*.c)
+CFILES = $(wildcard *.c) $(wildcard drivers/*.c) $(wildcard fs/*.c)
 ARCH_CFILES = $(wildcard arch/aarch64/*.c)
 ASMFILES = $(wildcard arch/aarch64/*.S)
 
@@ -17,11 +17,15 @@ ASMOBJS = $(addprefix $(BUILDDIR)/, $(notdir $(ASMFILES:.S=_asm.o)))
 all: $(COBJS) $(ARCH_COBJS) $(ASMOBJS)
 
 # Create build subdirectories as needed
-$(BUILDDIR)/drivers:
-	mkdir -p $(BUILDDIR)/drivers
+$(BUILDDIR)/fs $(BUILDDIR)/drivers $(BUILDDIR)/arch/aarch64:
+	mkdir -p $@
 
 # Rule for driver files - depends on the directory existing
 $(BUILDDIR)/drivers/%.o: drivers/%.c | $(BUILDDIR)/drivers
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Rule for fs files - depends on the directory existing
+$(BUILDDIR)/fs/%.o: fs/%.c | $(BUILDDIR)/fs
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Kernel C files

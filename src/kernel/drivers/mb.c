@@ -4,7 +4,7 @@
 volatile unsigned int __attribute__((aligned(16))) mbox[36];
 
  
-#define VIDEOCORE_MBOX  (PERIPHERAL_BASE + 0x0000B880)
+#define VIDEOCORE_MBOX  (PERIPHERAL_BASE_VA + 0x0000B880)
 #define MBOX_READ       (VIDEOCORE_MBOX + 0x0)
 #define MBOX_POLL       (VIDEOCORE_MBOX + 0x10)
 #define MBOX_SENDER     (VIDEOCORE_MBOX + 0x14)

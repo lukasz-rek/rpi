@@ -27,6 +27,7 @@
 
 //  looks goofy but I don't want to rewrite whole manual
 #define DEVICE_BASE     0xFC000000
+#define PERIPHERAL_BASE 0xFE000000
 #define DEVICE_END      0x100000000
 
 

@@ -12,10 +12,10 @@
     // This is difference of 200_0000
     // so we add it to our to get our peripheral base at 0xFe00_0000
     // then from gpfsel0 we always add at least 20_0000 as you can see below
-#define GPFSEL0         PERIPHERAL_BASE + 0x200000
-#define GPSET0          PERIPHERAL_BASE + 0x20001C
-#define GPCLR0          PERIPHERAL_BASE + 0x200028
-#define GPPUPPDN0       PERIPHERAL_BASE + 0x2000E4
+#define GPFSEL0         PERIPHERAL_BASE_VA + 0x200000
+#define GPSET0          PERIPHERAL_BASE_VA + 0x20001C
+#define GPCLR0          PERIPHERAL_BASE_VA + 0x200028
+#define GPPUPPDN0       PERIPHERAL_BASE_VA + 0x2000E4
 
 enum {
     GPIO_MAX_PIN       = 53, 
