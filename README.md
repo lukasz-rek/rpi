@@ -28,3 +28,10 @@ Not great quality, I know, but couldn't capture it in QEMU.
 * With FAT32 working, some simple .elf files for user programs could be made and loaded.
 * Likely more
 
+# Build
+
+Simply run below in root directory, which will produce a kernel8.img. You can copy this to the sd-card manually or use the copy.sh script, which might need adjusting for your use. 
+```
+make
+```
+
