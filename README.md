@@ -5,10 +5,24 @@ This is a simple learning OS I wrote to get a better grasp on some of the operat
  * [s-matyukevich](https://github.com/s-matyukevich/raspberry-pi-os) - great guide with in-depth explanations! Helped me a lot with understanding user space, MMU and task scheduling.
  * [circle](https://github.com/rsta2/circle) - great reference for the EMMC2 driver, covers much more stuff so I had to cut out bits relevant to me :).
 
- I could continue to work more on this, but with OS's you have to know when to call it quits and I think my efforts now could be better spend on other projects. In the end, my system supports UART debug comms (used for key inputs as USB is a bit harder to implement), a task scheduler that supports sleeping tasks that can wait for ISR's and yield to other tasks in meantime. It has kernel/user space division with system calls and a graphical interface outputted on HDMI with a simple shell implementation. Then it also has a simple implementation of reading FAT32 files via EMMC2 from the sd-card. It also has a simple kernel heap and works in QEMU (though EMMC2 is not supported there yet, hence anything related to that doesn't work there).
+ I could continue to work more on this, but with OS's you have to know when to call it quits and I think my efforts now could be better spend on other projects. 
+ 
+<!-- 
+In the end, my system supports UART debug comms (used for key inputs as USB is a bit harder to implement), a task scheduler that supports sleeping tasks that can wait for ISR's and yield to other tasks in meantime. It has kernel/user space division with system // calls and a graphical interface outputted on HDMI with a simple shell implementation. Then it also has a simple implementation of reading FAT32 files via EMMC2 from the sd-card. It also has a simple kernel heap and works in QEMU (though EMMC2 is not supported 
+there yet, hence anything related to that doesn't work there).
+-->
 
 If anyone also wants to write a simple OS up to a terminal, like I did, I hope this can be of some help!
-
+# Functionality
+* UART communication
+* Timer & ISR support
+* Tasks & Scheduling
+    * Supports sleeping tasks
+    * Supports waiting for specific ISR
+ * Simple user space & MMU
+ * Screen drawing
+ * Simple terminal interface with few programs
+ * EMMC2 SD card reading via FAT32
 # Some Pictures
 Reading directories and ASCII art
 
